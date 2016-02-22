@@ -399,7 +399,7 @@ class TestPEP425Tags(object):
 class TestManylinux1Tags(object):
 
     @patch('pip.pep425tags.get_platform', lambda: 'linux_x86_64')
-    @patch('pip.pep425tags.have_compatible_glibc', lambda foo, bar: True)
+    @patch('pip.pep425tags.have_compatible_glibc', lambda major, minor: True)
     def test_manylinux1_1(self):
         """
         Test that manylinux1 is enabled on linux_x86_64
@@ -407,7 +407,7 @@ class TestManylinux1Tags(object):
         assert pep425tags.is_manylinux1_compatible()
 
     @patch('pip.pep425tags.get_platform', lambda: 'linux_x86_64')
-    @patch('pip.pep425tags.have_compatible_glibc', lambda foo, bar: False)
+    @patch('pip.pep425tags.have_compatible_glibc', lambda major, minor: False)
     def test_manylinux1_2(self):
         """
         Test that manylinux1 is disabled with incompatible glibc
@@ -415,12 +415,32 @@ class TestManylinux1Tags(object):
         assert not pep425tags.is_manylinux1_compatible()
 
     @patch('pip.pep425tags.get_platform', lambda: 'arm6vl')
-    @patch('pip.pep425tags.have_compatible_glibc', lambda foo, bar: True)
+    @patch('pip.pep425tags.have_compatible_glibc', lambda major, minor: True)
     def test_manylinux1_3(self):
         """
         Test that manylinux1 is disabled on arm6vl
         """
         assert not pep425tags.is_manylinux1_compatible()
+
+    @patch('pip.pep425tags.get_platform', lambda: 'linux_x86_64')
+    @patch('pip.pep425tags.have_compatible_glibc', lambda major, minor: True)
+    def test_manylinux1_tag_is_first_on_x86_64(self):
+        """
+        Test that the more specific tag manylinux1 comes first.
+        """
+        import sys
+        print(sys.platform, pep425tags.is_manylinux1_compatible())
+        supported = pep425tags.get_supported()
+
+        assert supported == []
+
+    @patch('pip.pep425tags.get_platform', lambda: 'linux_i686')
+    @patch('pip.pep425tags.have_compatible_glibc', lambda major, minor: True)
+    def test_manylinux1_tag_is_first_on_i686(self):
+        """
+        Test that the more specific tag manylinux1 comes first.
+        """
+        pass
 
 
 class TestMoveWheelFiles(object):
